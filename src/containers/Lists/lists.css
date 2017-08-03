@@ -1,0 +1,32 @@
+.list_table{
+    padding: 2rem 2rem  0 calc(2rem + 160px)!important;
+}
+
+.loading{
+    font-size: 3rem;
+    color:#108ee9;
+    margin-top: 3rem;
+    text-align: center;
+}
+.add_button{
+    position:absolute !important;
+    top:0;
+    right:0;
+    margin-right: 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #108ee9;
+    color:#fff;
+    box-shadow: 2px 4px 8px 0px rgba(46, 61, 73, 0.2);
+    box-sizing: border-box;
+    padding:.3rem 1rem;
+    border-radius: 5px;
+    transition: .3s;
+    height:36px;
+    width:134px;
+    text-align: center;
+    margin-top: 5px;
+}
+.add_button:hover{
+    box-shadow: none;
+}

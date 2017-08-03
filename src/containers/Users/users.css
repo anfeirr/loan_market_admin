@@ -1,0 +1,12 @@
+.user_table{
+    box-sizing: border-box;
+    padding:2rem 2rem 4rem;
+}
+.search{
+    position:absolute !important;
+    top:0;
+    right:0;
+    margin-right: 2rem;
+    margin-top: .5rem;
+    width: 240px !important;
+}

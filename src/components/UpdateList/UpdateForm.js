@@ -1,6 +1,9 @@
 import React,{Component} from 'react'
-import { Input, Icon,Table,Spin,Modal,Form, Select, InputNumber, Switch, Radio, Slider, Button, Upload} from 'antd';
+import { Input, Icon,Table,Spin,Modal,Form, Select, InputNumber,Switch, Radio, Slider, Button, Upload} from 'antd';
 import {connect} from 'react-redux'
+import {setForm} from '../../actions'
+
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioButton = Radio.Button;
@@ -10,28 +13,53 @@ const RadioGroup = Radio.Group;
 class UpdateForm extends Component{
 
 
-
     constructor(){
         super(...arguments)
         this.normFile = this.normFile.bind(this)
         this.FormSubmit = this.FormSubmit.bind(this)
         this.state = {
-            itemData:{}
+            itemData:[{name:''}],
+            previewVisible: false,
+            previewImage: '',
+            fileList: [],
         }
     }
+
+
+    handleCancel = () => this.setState({ previewVisible: false })
+
+    handlePreview = (file) => {
+        this.setState({
+            previewImage: file.url || file.thumbUrl,
+            previewVisible: true,
+        });
+    }
+
+    handleChange = ({ fileList }) => this.setState({ fileList })
+
+
     normFile (e) {
+
         console.log('Upload event:', e);
+
         if (Array.isArray(e)) {
             return e;
         }
+
         return e && e.fileList;
     }
 
 
-    FormSubmit (){
+    FormSubmit (e){
+        e.preventDefault();
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                console.log('Received values of form: ', values);
+                this.props.sendFrom({...values,id:this.props.id})
+            }
+        });
 
     }
-
 
     componentWillMount(){
             if(this.props.itemData && this.props.id != -1){
@@ -42,12 +70,21 @@ class UpdateForm extends Component{
     }
 
     render(){
-        console.log(this.state.itemData)
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: { span: 6 },
             wrapperCol: { span: 14 },
         };
+
+        const { previewVisible, previewImage, fileList } = this.state;
+        const uploadButton = (
+            <div>
+                <Icon type="plus" />
+                <div className="ant-upload-text">Upload</div>
+            </div>
+        );
+
+
 
         return (
             <Form onSubmit={this.FormSubmit}>
@@ -118,7 +155,7 @@ class UpdateForm extends Component{
                         ],
                         initialValue:this.state.itemData[0].time
                     })(
-                        <Input value="" placeholder="请填写时间"/>
+                        <Input  placeholder="请填写时间"/>
                     )}
                 </FormItem>
 
@@ -133,7 +170,7 @@ class UpdateForm extends Component{
                         initialValue:this.state.itemData[0].money
 
                     })(
-                        <Input value="" placeholder="请填写金额"/>
+                        <Input  placeholder="请填写金额"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -162,12 +199,25 @@ class UpdateForm extends Component{
                             valuePropName: 'fileList',
                             getValueFromEvent: this.normFile,
                         })(
-                            <Upload.Dragger name="files" action="/api/admin/img">
-                                <p className="ant-upload-drag-icon">
-                                    <Icon type="inbox" />
-                                </p>
-                                <p className="ant-upload-text">点击或拖动一个图片</p>
-                            </Upload.Dragger>
+                            <div>
+                                <Upload
+                                    name="files"
+                                    action="/upload"
+                                    method="post"
+                                    enctype="multipart/form-data"
+                                    listType="picture-card"
+                                    fileList={fileList}
+                                    onPreview={this.handlePreview}
+                                    onChange={this.handleChange}
+
+                                >
+                                    {fileList.length >= 1 ? null : uploadButton}
+
+                                </Upload>
+                                <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
+                                    <img alt="example" style={{ width: '100%' }} src={previewImage} />
+                                </Modal>
+                            </div>
                         )}
                     </div>
                 </FormItem>
@@ -190,12 +240,12 @@ function mapState(state){
 
 function mapDispatch (dispatch){
     return {
-        sendFrom(){
-            dispatch()
+        sendFrom(data){
+            dispatch(setForm(data))
         }
     }
 }
-export default connect(mapState)(UpdateForm)
+export default connect(mapState,mapDispatch)(UpdateForm)
 
 
 

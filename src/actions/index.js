@@ -32,3 +32,11 @@ export function getList(){
         })
     }
 }
+
+export function setForm (data){
+    return dispatch => {
+        axios.post('/admin/api/getform',data).then(res => {
+            console.log(res)
+        })
+    }
+}

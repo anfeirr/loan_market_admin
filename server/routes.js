@@ -10,5 +10,4 @@ module.exports = function(app,body,connection) {
     listItem(router,body,connection);
     app.use(router.routes());
 
-    app.listen(4000);
 }

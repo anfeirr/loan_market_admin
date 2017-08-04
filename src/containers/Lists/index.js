@@ -91,8 +91,6 @@ class Lists extends Component {
     }
 
     render(){
-
-
         const columns = [{
             title:'ICON',
             dataIndex:'icon',
@@ -133,7 +131,6 @@ class Lists extends Component {
                             <span className="ant-divider" />
                        </span>
             )}
-
 
         },{
             title:'类型',

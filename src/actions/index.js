@@ -40,3 +40,11 @@ export function setForm (data){
         })
     }
 }
+
+export function deleteById(id){
+    return dispatch => {
+      axios.post('/admin/api/delete',{id:id}).then( res => {
+
+      })
+    }
+}

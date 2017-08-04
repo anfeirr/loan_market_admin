@@ -17,6 +17,6 @@ connection.connect();
 
 routes(app,body,connection);
 
-app.use(serve(__dirname + '/static'))
+app.use(serve(__dirname + '/public'))
 
 console.log('run at port 4000');

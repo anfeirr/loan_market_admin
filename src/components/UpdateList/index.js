@@ -28,7 +28,7 @@ class UpdateList extends Component {
 
                 {/*<h1 onClick={this.show}>{this.props.changeId}</h1>*/}
 
-                <ShowForm  id={this.props.changeId}/>
+                <ShowForm  ok={this.props.onOk} id={this.props.changeId} />
 
             </Modal>
         )

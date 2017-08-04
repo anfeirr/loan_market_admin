@@ -3,7 +3,7 @@ import Header from '../../components/Header'
 import { Menu, Button,Icon,Table,Spin,Radio,Form, Select} from 'antd';
 import { connect } from 'react-redux'
 import {Link} from 'react-router-dom'
-import {getList} from '../../actions/'
+import {getList,deleteById} from '../../actions/'
 
 import UpdateList from '../../components/UpdateList'
 import './lists.css'
@@ -24,12 +24,14 @@ class Lists extends Component {
         this.Update = this.Update.bind(this);
         this.onCancelModal = this.onCancelModal.bind(this)
         this.onOkModal = this.onOkModal.bind(this)
+        this.Delete = this.Delete.bind(this)
         this.state = {
             type:null,
             visible:true,
             filterList:[],
             showModal:false,
-            ModalChangeId:0
+            ModalChangeId:0,
+            ModalDeleteId:0
         };
     }
 
@@ -44,6 +46,11 @@ class Lists extends Component {
         this.setState({ModalChangeId:e.target.id});
         return e.target.id
 
+    }
+    Delete(e){
+        console.log(e.target.id)
+        this.props.deleteListItemById(e.target.id)
+        return e.target.id
     }
     handleSubmit (e)  {
         e.preventDefault();
@@ -87,6 +94,21 @@ class Lists extends Component {
 
 
         const columns = [{
+            title:'ICON',
+            dataIndex:'icon',
+            key:'icon',
+            render: src => <img
+                style={
+                    {
+                        border:'1px solid #f0f0f0',
+                        borderRadius:'5px'
+                    }
+                }
+                width="45px"
+                height="45px"
+                src={'/uploads/'+ src}
+            />
+        },{
             title:'名称',
             dataIndex:'name',
             key:'user',
@@ -148,7 +170,7 @@ class Lists extends Component {
                         <Icon type="rollback"/>更新
                     </a>
                     <span className="ant-divider" />
-                    <a href="#"><Icon type="delete"/>删除</a>
+                    <a href="?" id={record.id} onClick={this.Delete}><Icon type="delete"/>删除</a>
                     <span className="ant-divider" />
                     {/*<a href="#" className="ant-dropdown-link">*/}
                     {/*更多选项<Icon type="down" /></a>*/}
@@ -214,6 +236,9 @@ function mapDispatch(dispatch){
     return {
         getListsInfo(){
             dispatch(getList())
+        },
+        deleteListItemById(id){
+            dispatch(deleteById(id))
         }
     }
 }

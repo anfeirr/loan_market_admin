@@ -8,7 +8,6 @@ module.exports = function(router,body,connection){
 
         setInterval(updateUser(connection),1000);
         router.get(`/admin/api/user`,body,function(ctx){
-            console.log(userArr)
             ctx.body = JSON.stringify(userArr) == '[]'?result:userArr;
         })
     })

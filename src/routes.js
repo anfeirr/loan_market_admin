@@ -9,6 +9,6 @@ export default (
         <Route  exact path="/" component={Users}/>
         <Route path="/login" component={Login}/>
         <Route path="/lists/:id" component={Lists}/>
-        <Route path="/admin" component={Admin}/>
+        <Route path="/admin/:type/:value" component={Admin}/>
     </div>
 )

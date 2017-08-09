@@ -3,7 +3,7 @@ import Header from '../../components/Header'
 import { Menu, Button,Icon,Table,Spin,Radio,Form, Select} from 'antd';
 import { connect } from 'react-redux'
 import {Link} from 'react-router-dom'
-import {getList,deleteById} from '../../actions/'
+import {getList,deleteById,getListsCount} from '../../actions/'
 
 import UpdateList from '../../components/UpdateList'
 import './lists.css'
@@ -19,12 +19,13 @@ class Lists extends Component {
 
     constructor(){
         super(...arguments);
-
+        this.props.getListsCount();
         this.changeTable = this.changeTable.bind(this);
         this.Update = this.Update.bind(this);
         this.onCancelModal = this.onCancelModal.bind(this)
         this.onOkModal = this.onOkModal.bind(this)
         this.Delete = this.Delete.bind(this)
+
         this.state = {
             type:null,
             visible:true,
@@ -36,8 +37,8 @@ class Lists extends Component {
     }
 
 
-    changeTable(e){
 
+    changeTable(e){
         this.setState({type:e.key})
 
     }
@@ -48,8 +49,8 @@ class Lists extends Component {
 
     }
     Delete(e){
-        console.log(e.target.id)
         this.props.deleteListItemById(e.target.id)
+        window.location.href = '/lists/' + this.props.match.params.id
         return e.target.id
     }
     handleSubmit (e)  {
@@ -77,7 +78,6 @@ class Lists extends Component {
 
         this.props.getListsInfo();
 
-
         switch (this.props.match.params.id){
             case "small":
                 return this.setState({type:'1'})
@@ -91,6 +91,7 @@ class Lists extends Component {
     }
 
     render(){
+
         const columns = [{
             title:'ICON',
             dataIndex:'icon',
@@ -133,6 +134,22 @@ class Lists extends Component {
             )}
 
         },{
+            title:'热度',
+            dataIndex:'count',
+            key:'count',
+            render: (text,record) => {
+                let count = 0;
+                if(this.props.listCount){
+                    console.log("获取到的数据为",this.props.listCount.data)
+                    this.props.listCount.data.map(item =>{
+                        if(item.listId == record.id){
+                            count = item.listNumber
+                        }
+                    })
+                }
+                return <span>{count}</span>
+            }
+        },{
             title:'类型',
             dataIndex:'type',
             key:'type',
@@ -144,8 +161,10 @@ class Lists extends Component {
                     return <span>中额</span>
                     case 3:
                     return <span>大额</span>
+                    case 4:
+                        return <span>待回收</span>
                     default:
-                    return <span>错误</span>
+                    return <span>请选择一项</span>
                 }
 
             }
@@ -163,14 +182,15 @@ class Lists extends Component {
                     <a href="#"
                        id={record.id}
                        onClick={this.Update}
-                    >
-                        <Icon type="rollback"/>更新
+                    >更新
                     </a>
+                    <span className="ant-divider"/>
+                        <Link to={'/admin/list/'+record.id} id={record.id} target="_blank" className="ant-dropdown-link">详细数据</Link>
                     <span className="ant-divider" />
-                    <a href="?" id={record.id} onClick={this.Delete}><Icon type="delete"/>删除</a>
-                    <span className="ant-divider" />
-                    {/*<a href="#" className="ant-dropdown-link">*/}
-                    {/*更多选项<Icon type="down" /></a>*/}
+
+                    <a href="#" id={record.id} onClick={this.Delete}><Icon type="delete"/>删除</a>
+
+
                 </span>
             ),
         }];
@@ -193,6 +213,9 @@ class Lists extends Component {
                     </Menu.Item>
                     <Menu.Item key="3">
                         <Link to="/lists/large">大额贷款列表</Link>
+                    </Menu.Item>
+                    <Menu.Item key="4">
+                        <Link to="/lists/recycle">回收站</Link>
                     </Menu.Item>
                 </Menu>
                 <span className="add_button" id={-1} onClick={this.Update}>增加项目</span>
@@ -225,7 +248,8 @@ class Lists extends Component {
 
 function mapState(state){
     return {
-        listInfo:state.list.listInfo
+        listInfo:state.list.listInfo,
+        listCount:state.count.data
     }
 }
 
@@ -236,6 +260,9 @@ function mapDispatch(dispatch){
         },
         deleteListItemById(id){
             dispatch(deleteById(id))
+        },
+        getListsCount(){
+            dispatch(getListsCount())
         }
     }
 }

@@ -2,7 +2,7 @@ const multer = require('koa-multer')
 const path = require('path')
 
 
-var imgurl = '';
+var imgurl = '',changeImg = false;
 
 var storage = multer.diskStorage({
     //文件保存路径
@@ -21,14 +21,29 @@ var upload = multer({ storage: storage });
 module.exports = function(router,body,connection){
 
     router.post('/admin/api/delete',body, ctx => {
-        connection.query(`delete from loan_list where id='${ctx.request.body.id}'`,(err,result) => {
-            ctx.body="delete ok"
+        connection.query(`select * from loan_list where id='${ctx.request.body.id}'`,(err,result) => {
+            if(result.length){
+                if(result[0].type == 1 || result[0].type == 2 || result[0].type == 3){
+                    connection.query(`
+                     update loan_list set type="${4}" where id="${ctx.request.body.id}"`,(err,result) => {
+                        console.log(err,result);
+                        ctx.body = result
+                    })
+                }else if(result[0].type == 4){
+                    connection.query(`delete from loan_list where id='${ctx.request.body.id}'`,(err,result) => {
+                        console.log(err,result);
+                        ctx.body="delete ok"
+                    })
+                }
+            }
         })
+
     });
 
     router.post('/upload', upload.single('files'), async (ctx, next) => {
         console.log(ctx.req.file)
         imgurl = ctx.req.file.filename
+        changeImg = true
         ctx.body = {
             filename: ctx.req.file.filename//返回文件名
     }
@@ -59,7 +74,7 @@ module.exports = function(router,body,connection){
                 }
 
                 if(result.length){
-                     let upDateQuery = `
+                     let upDateQuery =changeImg? `
                      update loan_list set
                       name="${ctx.request.body.name}",
                       time="${ctx.request.body.time}",
@@ -69,7 +84,18 @@ module.exports = function(router,body,connection){
                       tag="${tag[0]}",
                       icon="${imgurl}"
                       where id="${ctx.request.body.id}"
-                      `;
+                      `:
+                         `update loan_list set
+                    name="${ctx.request.body.name}",
+                        time="${ctx.request.body.time}",
+                        money="${ctx.request.body.money}",
+                        type="${type}",
+                        href="${ctx.request.body.url}",
+                        tag="${tag[0]}"
+                    where id="${ctx.request.body.id}"
+                        `;
+                     changeImg = false
+
                      console.log(type)
                     connection.query(upDateQuery,function(err,result){
                         console.log(err)

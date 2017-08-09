@@ -1,9 +1,10 @@
 import React,{Component} from 'react'
-import { Menu, Icon,Table,Input} from 'antd';
+import { Menu, Icon,Table,Input,Spin} from 'antd';
 import {connect} from 'react-redux'
+import {Link} from 'react-router-dom'
 import {getUser} from "../../actions/index"
 import Header from '../../components/Header'
-
+import {getCountDataByUser} from '../../actions'
 import './users.css'
 
 const Search = Input.Search;
@@ -12,15 +13,17 @@ class Admin extends Component{
     constructor(){
         super(...arguments);
         this.searchTable = this.searchTable.bind(this);
+
+        this.props.getUserInfo();
+        this.props.getUserCount();
+
         this.state = {
             users:[],
-            searchResult:false
+            searchResult:false,
+            countData:[]
         }
     }
     componentWillMount(){
-
-        this.props.getUserInfo();
-
 
     }
 
@@ -61,6 +64,27 @@ class Admin extends Component{
             title:'居住地址',
             dataIndex:'home_address',
             key:'home_address'
+        },{
+            title:'活跃度',
+            dataIndex:'function',
+            key:'function',
+            render:(text,record) => {
+                let count = 0;
+                if(this.props.count){
+                    this.props.count.data.map(item => {
+                        if(item.phoneNumber == record.phoneNumber){
+                            count = item.clickNumber
+                        }
+                    })
+
+                    return (
+                        <span key={record.phoneNumber}>
+                        <span>{count}</span>
+                     </span>
+                    )
+                }
+              }
+
         }];
         if(this.state.searchResult){
             return (
@@ -91,20 +115,26 @@ class Admin extends Component{
             )
         }
 
-        return <div><Header current="user"/></div>
+        return (<div><Header current="user"/><div className="loading"><Spin size="large"/></div></div>)
     }
 }
 
 
 function mapState(state){
     return {
-        users:state.user.userInfo
+        users:state.user.userInfo,
+        count:state.count.data
     }
 }
 function mapDispatch(dispatch){
    return {
        getUserInfo(){
+
            dispatch(getUser())
+
+       },getUserCount(){
+
+           dispatch(getCountDataByUser())
        }
    }
 }

@@ -23,6 +23,7 @@ class UpdateForm extends Component{
 
         });
         let imgurl = imgobj[0]?imgobj[0].icon:null;
+        console.log(imgurl)
 
         this.state = {
             itemData:[{name:""}],
@@ -30,11 +31,11 @@ class UpdateForm extends Component{
             previewImage: '',
             fileList: [{
                 uid: -1,
-                name: 'xxx.png',
+                name: 'init.png',
                 status: 'done',
                 url: `../uploads/${imgurl}`,
             }],
-        }
+        };
 
 
         if(this.props.itemData && this.props.id != -1){
@@ -49,12 +50,12 @@ class UpdateForm extends Component{
     handleCancel = () => this.setState({ previewVisible: false })
 
     handlePreview = (file) => {
-        console.log(this.state.fileList)
+        console.log(this.state.fileList);
         this.setState({
             previewImage: file.url || file.thumbUrl,
             previewVisible: true,
         });
-    }
+    };
 
     handleChange = ({ fileList }) => this.setState({ fileList })
 
@@ -74,6 +75,7 @@ class UpdateForm extends Component{
     FormSubmit (e){
         this.props.ok()
         e.preventDefault();
+        console.log(this.state.url)
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
@@ -82,7 +84,7 @@ class UpdateForm extends Component{
         });
 
 
-        window.location.href = '/lists/small'
+        window.location.href = `/lists/small`
     }
 
     componentWillMount(){
@@ -139,7 +141,11 @@ class UpdateForm extends Component{
                                         ? '小额贷款'
                                         :this.state.itemData[0].type == 2
                                         ?'中额贷款'
-                                        :'大额贷款'
+                                        :this.state.itemData[0].type == 3
+                                            ?'大额贷款'
+                                            :this.state.itemData[0].type == 4
+                                                ?'待回收':
+                                                '出错了'
                                     }`
                         })(
                             <Select placeholder="请选择一个类型">

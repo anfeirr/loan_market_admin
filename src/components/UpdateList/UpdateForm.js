@@ -1,5 +1,5 @@
 import React,{Component} from 'react'
-import { Input, Icon,Table,Spin,Modal,Form, Select, InputNumber,Switch, Radio, Slider, Button, Upload} from 'antd';
+import { Input, message,Icon,Table,Spin,Modal,Form, Select, InputNumber,Switch, Radio, Slider, Button, Upload} from 'antd';
 import {connect} from 'react-redux'
 import {setForm} from '../../actions'
 
@@ -17,24 +17,24 @@ class UpdateForm extends Component{
         super(...arguments)
         this.normFile = this.normFile.bind(this)
         this.FormSubmit = this.FormSubmit.bind(this)
+        this.beforeUpload = this.beforeUpload.bind(this)
         let imgobj = this.props.itemData.data.filter( item => {
 
             return item.id == this.props.id
 
         });
         let imgurl = imgobj[0]?imgobj[0].icon:null;
-        console.log(imgurl)
-
+        let filelistContent = (imgurl == null)?[]:[{
+            uid: -1,
+            name: 'init.png',
+            status: 'done',
+            url: `../uploads/${imgurl}`,
+        }]
         this.state = {
             itemData:[{name:""}],
             previewVisible: false,
             previewImage: '',
-            fileList: [{
-                uid: -1,
-                name: 'init.png',
-                status: 'done',
-                url: `../uploads/${imgurl}`,
-            }],
+            fileList: filelistContent,
         };
 
 
@@ -59,6 +59,17 @@ class UpdateForm extends Component{
 
     handleChange = ({ fileList }) => this.setState({ fileList })
 
+     beforeUpload(file) {
+        const isJPG = file.type === 'image/jpeg';
+        if (!isJPG) {
+            message.error('You can only upload JPG file!');
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+            message.error('Image must smaller than 2MB!');
+        }
+        return isJPG && isLt2M;
+    }
 
     normFile (e) {
 
@@ -238,9 +249,12 @@ class UpdateForm extends Component{
                                         fileList={fileList}
                                         onPreview={this.handlePreview}
                                         onChange={this.handleChange}
+                                        beforeUpload={this.beforeUpload}
 
                                     >
+
                                         {fileList.length >= 1 ? null : uploadButton}
+
 
                                     </Upload>
                                     <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>

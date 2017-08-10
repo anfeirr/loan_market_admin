@@ -9,76 +9,85 @@ module.exports = function(router,body,connection){
         setInterval(updateCount(connection),1000);
 
         connection.query(`select time,phoneNumber,listId from loan_list_count`,
-
             function(err,result){
 
                 router.post('/admin/api/getcountdatabylist',body, ctx => {
+                    if(err){
+                        ctx.body = []
+                    }else{
+                        // ctx.body = await result
+                        let Result = countData == []?result:countData;
 
-                    // ctx.body = await result
-                    let Result = countData == []?result:countData;
+                        let MiddleResult =  Result.filter( (item,index) => {
+                            return  item.listId  == ctx.request.body.value
+                        });
 
-                   let MiddleResult =  Result.filter( (item,index) => {
-                       return  item.listId  == ctx.request.body.value
-                    });
+                        if(MiddleResult.length){
+                            let timeData = [];
+                            let pushTag = true;
+                            timeData.push({time:MiddleResult[0].time,count:0})
 
-                   console.log(MiddleResult)
-                    let timeData = [];
-                    let pushTag = true;
-                    timeData.push({time:MiddleResult[0].time,count:0})
+                            for (let i = 0; i < MiddleResult.length;i++){
+                                pushTag = true
+                                for (let j = 0; j < timeData.length;j++){
 
-                    for (let i = 0; i < MiddleResult.length;i++){
-                        pushTag = true
-                       for (let j = 0; j < timeData.length;j++){
+                                    if(MiddleResult[i].time == timeData[j].time){
 
-                            if(MiddleResult[i].time == timeData[j].time){
+                                        ++timeData[j].count
+                                        pushTag = false
+                                    }
 
-                                ++timeData[j].count
-                                   pushTag = false
-                            }
+                                }
+                                if(pushTag){
+                                    timeData.push({time:MiddleResult[i].time,count:1})
 
-                       }
-                       if(pushTag){
-                           timeData.push({time:MiddleResult[i].time,count:1})
-
-                       }
-
-                    }
-                   ctx.body = timeData
-                })
-                router.post('/admin/api/getcountdatabyuser',body, ctx => {
-
-                    let Result = countData == []?result:countData;
-                    let MiddleResult =  Result.filter( (item,index) => {
-                        return  item.phoneNumber  == ctx.request.body.phoneNumber
-                    });
-                    if(MiddleResult.length >= 1){
-                        let timeData = [];
-                        let pushTag = true;
-                        timeData.push({time:MiddleResult[0].time,listArr:[]})
-
-                        for (let i = 0; i < MiddleResult.length;i++){
-                            pushTag = true
-                            for (let j = 0; j < timeData.length;j++){
-
-                                if(MiddleResult[i].time == timeData[j].time){
-                                    timeData[j].listArr.push(MiddleResult[i].listId)
-                                    pushTag = false
                                 }
 
                             }
-                            if(pushTag){
-                                timeData.push({time:MiddleResult[i].time,listArr:[]})
+                            ctx.body = timeData
+                        }else{
+                            ctx.body = []
+
+                        }
+                    }
+
+                })
+                router.post('/admin/api/getcountdatabyuser',body, ctx => {
+                    if(err){
+                        ctx.body = []
+                    }else {
+                        let Result = countData == [] ? result : countData;
+                        let MiddleResult = Result.filter((item, index) => {
+                            return item.phoneNumber == ctx.request.body.phoneNumber
+                        });
+                        if (MiddleResult.length >= 1) {
+                            let timeData = [];
+                            let pushTag = true;
+                            timeData.push({time: MiddleResult[0].time, listArr: []})
+
+                            for (let i = 0; i < MiddleResult.length; i++) {
+                                pushTag = true
+                                for (let j = 0; j < timeData.length; j++) {
+
+                                    if (MiddleResult[i].time == timeData[j].time) {
+                                        timeData[j].listArr.push(MiddleResult[i].listId)
+                                        pushTag = false
+                                    }
+
+                                }
+                                if (pushTag) {
+                                    timeData.push({time: MiddleResult[i].time, listArr: []})
+
+                                }
 
                             }
 
+                            ctx.body = timeData
+                        } else {
+                            ctx.body = "此人没有点击过任何东西"
                         }
 
-                        ctx.body = timeData
-                    }else{
-                        ctx.body = "此人没有点击过任何东西"
                     }
-
-
 
 
 
@@ -109,30 +118,45 @@ module.exports = function(router,body,connection){
 
         connection.query(`select count(*) as clickNumber,phoneNumber from loan_list_count group by phoneNumber`,
             function(err,result){
+
                 router.post('/admin/api/getusercount',body ,ctx => {
-                    let Result = countPhoneNumber == []?result:countPhoneNumber;
-                    ctx.body = Result
+                    if(err){
+                        ctx.body = []
+                    }else {
+                        let Result = countPhoneNumber == [] ? result : countPhoneNumber;
+                        ctx.body = Result
+                    }
                 })
             })
 
         connection.query(`select count(*) as listNumber,listId from loan_list_count group by listId`,
             function (err,result) {
+
                 router.post('/admin/api/getlistcount',body ,ctx => {
-                    let Result = countListNumber == []?result:countListNumber;
-                    ctx.body = Result
+                    if(err){
+                        ctx.body = []
+                    }else {
+                        let Result = countListNumber == [] ? result : countListNumber;
+                        ctx.body = Result
+                    }
                 })
             })
 
         connection.query(`select phoneNumber,listId from loan_list_count`,
             function(err,result){
+
             router.post('/admin/api/getnamelist',body,ctx => {
-                let Result = nameList == []?result:nameList;
+                if(err){
+                    ctx.body = []
+                }else {
+                    let Result = nameList == [] ? result : nameList;
 
-               let dd = Result.filter( item => {
+                    let dd = Result.filter(item => {
 
-                   return item.listId == ctx.request.body.listId
-                });
-                ctx.body = dd;
+                        return item.listId == ctx.request.body.listId
+                    });
+                    ctx.body = dd;
+                }
             })
             })
 };
